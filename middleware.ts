@@ -6,21 +6,59 @@ import type { NextRequest } from 'next/server'
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
   const supabase = createMiddlewareClient({ req, res })
-  const { data: { session } } = await supabase.auth.getSession()
 
-  // Redirect to auth page if accessing protected routes without session
-  if (!session && req.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/auth', req.url))
+  // Get session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  // No session = redirect to auth
+  if (!session) {
+    if (req.nextUrl.pathname !== '/auth') {
+      return NextResponse.redirect(new URL('/auth', req.url))
+    }
+    return res
   }
 
-  // Redirect to dashboard/explore if accessing auth page with session
-  if (session && req.nextUrl.pathname === '/auth') {
-    return NextResponse.redirect(new URL('/dashboard/explore', req.url))
+  // Get admin status
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', session.user.id)
+    .single()
+
+  const isAdmin = !!profile?.is_admin
+  const path = req.nextUrl.pathname
+
+  // If user is on auth page and logged in
+  if (path === '/auth' && session) {
+    return NextResponse.redirect(
+      new URL(isAdmin ? '/admin' : '/dashboard/explore', req.url)
+    )
+  }
+
+  // Admin routes protection
+  if (path.startsWith('/admin')) {
+    if (!isAdmin) {
+      return NextResponse.redirect(new URL('/dashboard/explore', req.url))
+    }
+    return res
+  }
+
+  // Non-admin route protection
+  if (path.startsWith('/dashboard')) {
+    if (isAdmin) {
+      return NextResponse.redirect(new URL('/admin', req.url))
+    }
+    if (path === '/dashboard') {
+      return NextResponse.redirect(new URL('/dashboard/explore', req.url))
+    }
+    return res
   }
 
   return res
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/auth']
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)']
 }
