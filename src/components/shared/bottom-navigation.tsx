@@ -1,8 +1,8 @@
 'use client'
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Trophy, User, Compass, BookOpen } from 'lucide-react';
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { Compass, Trophy, User } from 'lucide-react'
 
 export function BottomNavigation() {
   const pathname = usePathname();
@@ -10,17 +10,17 @@ export function BottomNavigation() {
   const navItems = [
     {
       label: 'Explore',
-      href: '/explore',
+      href: '/dashboard/explore',
       icon: Compass
     },
     {
       label: 'Badges',
-      href: '/badges',
+      href: '/dashboard/badges',
       icon: Trophy
     },
     {
       label: 'Profile',
-      href: '/profile',
+      href: '/dashboard/profile',
       icon: User
     }
   ];
