@@ -31,7 +31,6 @@ export async function GET(request: Request) {
         )
       }
     } catch (error) {
-      // Handle error
       return NextResponse.redirect(
         new URL('/auth?error=server_error', requestUrl.origin)
       )
