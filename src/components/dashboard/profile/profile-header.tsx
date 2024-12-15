@@ -11,13 +11,13 @@ export function ProfileHeader() {
   return (
     <div className="flex items-center space-x-4">
       <Avatar className="h-20 w-20">
-        <AvatarImage src={user.avatar_url} />
+        <AvatarImage src={user.user_metadata?.avatar_url} />
         <AvatarFallback>
-          {user.name?.charAt(0) || user.email?.charAt(0)}
+          {user.user_metadata?.name?.charAt(0) || user.email?.charAt(0)}
         </AvatarFallback>
       </Avatar>
       <div>
-        <h1 className="text-2xl font-bold">{user.name || 'User'}</h1>
+        <h1 className="text-2xl font-bold">{user.user_metadata?.name || 'User'}</h1>
         <p className="text-muted-foreground">{user.email}</p>
       </div>
     </div>
