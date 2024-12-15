@@ -1,21 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase';
 
-type Context = {
-  params: {
-    id: string;
-  };
-};
-
 export async function GET(
   request: NextRequest,
-  context: Context
+  { params }: { params: { id: string } }
 ) {
   try {
     const { data, error } = await supabase
       .from('categories')
       .select('*')
-      .eq('id', context.params.id)
+      .eq('id', params.id)
       .single();
 
     if (error) throw error;
@@ -28,14 +22,14 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  context: Context
+  { params }: { params: { id: string } }
 ) {
   try {
     const body = await request.json();
     const { data, error } = await supabase
       .from('categories')
       .update(body)
-      .eq('id', context.params.id)
+      .eq('id', params.id)
       .select()
       .single();
 
@@ -49,13 +43,13 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  context: Context
+  { params }: { params: { id: string } }
 ) {
   try {
     const { error } = await supabase
       .from('categories')
       .delete()
-      .eq('id', context.params.id);
+      .eq('id', params.id);
 
     if (error) throw error;
 
