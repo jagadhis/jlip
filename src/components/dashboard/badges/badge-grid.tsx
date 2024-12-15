@@ -1,16 +1,23 @@
-import { Badge } from '@/types/badge';
-import BadgeCard from './badge-card';
+'use client'
+
+import { Badge } from '@/types/admin'
+import { BadgeCard } from './badge-card'
 
 interface BadgeGridProps {
-  badges: Badge[];
+  badges: Badge[]
+  onBadgeClick: (badge: Badge) => void
 }
 
-export default function BadgeGrid({ badges }: BadgeGridProps) {
+export function BadgeGrid({ badges, onBadgeClick }: BadgeGridProps) {
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {badges.map((badge) => (
-        <BadgeCard key={badge.id} badge={badge} />
+        <BadgeCard
+          key={badge.id}
+          badge={badge}
+          onClick={() => onBadgeClick(badge)}
+        />
       ))}
     </div>
-  );
+  )
 }

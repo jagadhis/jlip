@@ -1,34 +1,45 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge as BadgeType } from '@/types/badge';
-import { Star, Trophy } from 'lucide-react';
-import Link from 'next/link';
+'use client'
+
+import { Badge } from '@/types/admin'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Badge as UIBadge } from '@/components/ui/badge'
+import { Award } from 'lucide-react'
+import { difficultyColors } from '@/lib/color'
 
 interface BadgeCardProps {
-  badge: BadgeType;
+  badge: Badge
+  onClick?: () => void
 }
 
-export default function BadgeCard({ badge }: BadgeCardProps) {
+export function BadgeCard({ badge, onClick }: BadgeCardProps) {
+  const difficultyColor = difficultyColors[badge.difficulty as keyof typeof difficultyColors]
   return (
-    <Link href={`/badges/${badge.id}`}>
-      <Card className="cursor-pointer hover:shadow-lg transition-shadow">
-        <CardContent className="p-4">
-          <div className="aspect-square rounded-lg bg-blue-100 mb-3 flex items-center justify-center">
-            <Trophy className="w-12 h-12 text-blue-500" />
+    <Card
+      className="cursor-pointer hover:shadow-md transition-shadow"
+      onClick={onClick}
+    >
+      <CardHeader className="space-y-1">
+        <div className="flex items-center space-x-2">
+          <span className="text-2xl">{badge.icon}</span>
+          <CardTitle className="text-lg">{badge.name}</CardTitle>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {badge.description}
+          </p>
+          <div className="flex items-center justify-between">
+            <UIBadge variant="outline" className="flex items-center gap-1">
+              <Award className="h-3 w-3" />
+              {badge.points} points
+            </UIBadge>
+            <UIBadge className={difficultyColor.full}>
+              Level {badge.difficulty}
+            </UIBadge>
           </div>
-          <h3 className="font-bold text-sm mb-1">{badge.title}</h3>
-          <div className="flex mb-2">
-            {Array.from({ length: badge.stars }).map((_, i) => (
-              <Star
-                key={i}
-                className="w-4 h-4 text-yellow-400 fill-yellow-400"
-              />
-            ))}
-          </div>
-          <span className="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
-            {badge.status}
-          </span>
-        </CardContent>
-      </Card>
-    </Link>
-  );
+        </div>
+      </CardContent>
+    </Card>
+  )
 }

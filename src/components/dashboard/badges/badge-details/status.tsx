@@ -1,28 +1,52 @@
-import { Button } from '@/components/ui/button';
+'use client'
 
-export default function BadgeStatus() {
+import { Badge } from '@/types/admin'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { Award, Clock } from 'lucide-react'
+
+interface BadgeStatusProps {
+  badge: Badge
+  currentStep: number
+  completedSteps: number[]
+  startedAt?: string
+}
+
+export function BadgeStatus({
+  badge,
+  currentStep,
+  completedSteps,
+  startedAt
+}: BadgeStatusProps) {
+  const progress = (completedSteps.length / badge.steps.length) * 100
+
   return (
-    <div className="p-4 space-y-4">
-      <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-        <h3 className="font-bold text-green-800 mb-2">Ready to Begin!</h3>
-        <p className="text-green-700">
-          Your adventure is about to start! Click "Add to Wallet" to begin.
-        </p>
-      </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Progress</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <Progress value={progress} />
 
-      <div className="mt-4">
-        <label className="block text-sm font-medium mb-2">
-          Have a special code? Enter it here:
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Enter your code"
-            className="flex-1 p-2 border rounded-lg"
-          />
-          <Button>Submit</Button>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center space-x-2">
+              <Award className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">
+                {completedSteps.length} of {badge.steps.length} steps complete
+              </span>
+            </div>
+            {startedAt && (
+              <div className="flex items-center space-x-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">
+                  Started {new Date(startedAt).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </div>
-  );
+      </CardContent>
+    </Card>
+  )
 }

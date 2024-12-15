@@ -1,20 +1,34 @@
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Star } from 'lucide-react';
-import Link from 'next/link';
+'use client'
 
-const badges = [
-  {
-    id: '1',
-    title: 'Math Wizard',
-    description: 'Master basic math skills',
-    stars: 3,
-    category: 'education'
-  },
-  // Add more badges
-];
+import { useState, useEffect } from 'react'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge as UIBadge } from '@/components/ui/badge'
+import { Award } from 'lucide-react'
+import Link from 'next/link'
+import { Badge } from '@/types/admin'
+import { supabase } from '@/lib/supabase'
+import { difficultyColors } from '@/lib/color'
 
-export default function BadgeList() {
+
+export function BadgeList() {
+  const [badges, setBadges] = useState<Badge[]>([])
+
+  useEffect(() => {
+    fetchBadges()
+  }, [])
+
+  const fetchBadges = async () => {
+    const { data, error } = await supabase
+      .from('badges')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (!error && data) {
+      setBadges(data)
+    }
+  }
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Available Badges 🏆</h2>
@@ -22,19 +36,25 @@ export default function BadgeList() {
         {badges.map((badge) => (
           <Card key={badge.id} className="p-4">
             <div className="flex justify-between items-center">
-              <div>
-                <h3 className="font-bold">{badge.title}</h3>
-                <p className="text-sm text-gray-600">{badge.description}</p>
-                <div className="flex mt-2">
-                  {Array.from({ length: badge.stars }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-4 h-4 text-yellow-400 fill-yellow-400"
-                    />
-                  ))}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{badge.icon}</span>
+                  <h3 className="font-bold">{badge.name}</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">{badge.description}</p>
+                <div className="flex items-center gap-2">
+                  <UIBadge variant="outline" className="flex items-center gap-1">
+                    <Award className="h-3 w-3" />
+                    {badge.points} points
+                  </UIBadge>
+                  <UIBadge
+                    className={difficultyColors[badge.difficulty as keyof typeof difficultyColors].full}
+                  >
+                    Level {badge.difficulty}
+                  </UIBadge>
                 </div>
               </div>
-              <Link href={`/badges/${badge.id}`}>
+              <Link href={`/dashboard/badges/${badge.id}`}>
                 <Button>View Details</Button>
               </Link>
             </div>
@@ -42,5 +62,5 @@ export default function BadgeList() {
         ))}
       </div>
     </div>
-  );
+  )
 }

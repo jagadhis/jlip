@@ -1,30 +1,88 @@
-import { DashboardShell } from '@/components/shell';
-import BadgeGrid from './badge-grid';
-import { Badge } from '@/types/badge';
+'use client'
 
-const mockBadges: Badge[] = [
-  {
-    id: '1',
-    title: 'Google Sheets Ace',
-    description: 'Master spreadsheet skills with fun challenges!',
-    category: 'education',
-    status: 'available',
-    imageUrl: '/badges/sheets.png',
-    stars: 3
-  },
-  // Add more mock badges
-];
+import { useEffect, useState } from 'react'
+import { Badge } from '@/types/admin'
+import { BadgeGrid } from './badge-grid'
+import { BadgeDetailsView } from './badge-details-view'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { supabase } from '@/lib/supabase'
+import { useToast } from '@/hooks/use-toast'
+import { DashboardShell } from '@/components/shell'
 
-export default function BadgesView() {
+interface BadgesViewProps {
+  courseId?: string
+}
+
+export function BadgesView({ courseId }: BadgesViewProps) {
+  const [badges, setBadges] = useState<Badge[]>([])
+  const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    fetchBadges()
+  }, [courseId])
+
+  const fetchBadges = async () => {
+    const query = courseId
+      ? supabase
+        .from('course_badges')
+        .select(`
+            badge_id,
+            required,
+            order_index,
+            badges (*)
+          `)
+        .eq('course_id', courseId)
+        .order('order_index')
+      : supabase
+        .from('badges')
+        .select('*')
+        .order('created_at')
+
+    const { data, error } = await query
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch badges',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    const badgeData = courseId
+      ? data.map(item => ({
+        ...item.badges,
+        required: item.required,
+        order_index: item.order_index
+      }))
+      : data
+
+    setBadges(badgeData)
+  }
+
   return (
-    <DashboardShell>
-      <div className="p-4 space-y-6">
-        <header>
-          <h1 className="text-2xl font-bold mb-2">My Badges 🏆</h1>
-          <p className="text-gray-600">Collect badges and show off your skills!</p>
-        </header>
-        <BadgeGrid badges={mockBadges} />
-      </div>
-    </DashboardShell>
-  );
+    <>
+      <DashboardShell>
+        <BadgeGrid
+          badges={badges}
+          onBadgeClick={(badge) => setSelectedBadge(badge)}
+        />
+
+        <Dialog open={!!selectedBadge} onOpenChange={() => setSelectedBadge(null)}>
+          <DialogHeader>
+            <DialogTitle>{selectedBadge?.name}</DialogTitle>
+          </DialogHeader>
+          <DialogContent className="max-w-4xl">
+            {selectedBadge && (
+              <BadgeDetailsView
+                badgeId={selectedBadge.id}
+                courseId={courseId}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+      </DashboardShell>
+    </>
+  )
 }

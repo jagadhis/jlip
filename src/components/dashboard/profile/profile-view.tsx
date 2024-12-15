@@ -1,14 +1,16 @@
-import { DashboardShell } from '@/components/shell';
-import ProfileHeader from './profile-header';
-import BadgeProgress from './badge-progress';
+'use client'
 
-export default function ProfileView() {
+import { ProfileHeader } from './profile-header'
+import { BadgeProgress } from './badge-progress'
+import { DashboardShell } from '@/components/shell'
+
+export function ProfileView() {
   return (
     <DashboardShell>
-      <div className="space-y-6 p-4">
+      <div className="space-y-8">
         <ProfileHeader />
         <BadgeProgress />
       </div>
     </DashboardShell>
-  );
+  )
 }

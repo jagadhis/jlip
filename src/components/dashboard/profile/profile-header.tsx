@@ -1,26 +1,25 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card } from '@/components/ui/card';
-import { Star } from 'lucide-react';
+'use client'
 
-export default function ProfileHeader() {
+import { useUser } from '@/hooks/use-user'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+
+export function ProfileHeader() {
+  const { user } = useUser()
+
+  if (!user) return null
+
   return (
-    <Card className="p-6">
-      <div className="flex items-center space-x-4">
-        <Avatar className="w-20 h-20">
-          <AvatarImage src="/placeholder-avatar.png" />
-          <AvatarFallback>EX</AvatarFallback>
-        </Avatar>
-        <div>
-          <h1 className="text-2xl font-bold">Explorer Name</h1>
-          <div className="flex items-center mt-1">
-            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-            <span className="ml-1">Level 5 Explorer</span>
-          </div>
-          <p className="text-sm text-gray-600 mt-1">
-            Completed 12 challenges
-          </p>
-        </div>
+    <div className="flex items-center space-x-4">
+      <Avatar className="h-20 w-20">
+        <AvatarImage src={user.avatar_url} />
+        <AvatarFallback>
+          {user.name?.charAt(0) || user.email?.charAt(0)}
+        </AvatarFallback>
+      </Avatar>
+      <div>
+        <h1 className="text-2xl font-bold">{user.name || 'User'}</h1>
+        <p className="text-muted-foreground">{user.email}</p>
       </div>
-    </Card>
-  );
+    </div>
+  )
 }

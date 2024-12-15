@@ -1,48 +1,62 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
-import { Trophy, Medal } from 'lucide-react';
+'use client'
 
-export default function BadgeProgress() {
+import { useState, useEffect } from 'react'
+import { Badge, UserProgress } from '@/types/admin'
+import { Progress } from '@/components/ui/progress'
+import { supabase } from '@/lib/supabase'
+import { useUser } from '@/hooks/use-user'
+import { BadgeCard } from '../badges/badge-card'
+
+export function BadgeProgress() {
+  const [userBadges, setUserBadges] = useState<(Badge & { progress: UserProgress })[]>([])
+  const { user } = useUser()
+
+  useEffect(() => {
+    if (user) {
+      fetchUserBadges()
+    }
+  }, [user?.id])
+
+  const fetchUserBadges = async () => {
+    const { data, error } = await supabase
+      .from('user_progress')
+      .select(`
+        *,
+        badge:badges (*)
+      `)
+      .eq('user_id', user?.id)
+      .order('started_at', { ascending: false })
+
+    if (error) return
+
+    const badges = data.map(progress => ({
+      ...progress.badge,
+      progress: {
+        status: progress.status,
+        current_step: progress.current_step,
+        completed_steps: progress.completed_steps,
+        started_at: progress.started_at,
+        completed_at: progress.completed_at
+      }
+    }))
+
+    setUserBadges(badges)
+  }
+
   return (
-    <Tabs defaultValue="ongoing" className="space-y-4">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="ongoing">
-          <Trophy className="mr-2 h-4 w-4" />
-          In Progress
-        </TabsTrigger>
-        <TabsTrigger value="completed">
-          <Medal className="mr-2 h-4 w-4" />
-          Completed
-        </TabsTrigger>
-      </TabsList>
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold">Your Badges</h2>
 
-      <TabsContent value="ongoing">
-        <div className="grid grid-cols-2 gap-4">
-          {/* Ongoing Badges */}
-          {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="p-4">
-              <div className="aspect-square rounded-lg bg-blue-100 mb-2 flex items-center justify-center">
-                <Trophy className="w-8 h-8 text-blue-500" />
-              </div>
-              <h3 className="font-medium text-sm">Ongoing Badge {i}</h3>
-            </Card>
-          ))}
-        </div>
-      </TabsContent>
-
-      <TabsContent value="completed">
-        <div className="grid grid-cols-2 gap-4">
-          {/* Completed Badges */}
-          {[1, 2].map((i) => (
-            <Card key={i} className="p-4">
-              <div className="aspect-square rounded-lg bg-green-100 mb-2 flex items-center justify-center">
-                <Medal className="w-8 h-8 text-green-500" />
-              </div>
-              <h3 className="font-medium text-sm">Completed Badge {i}</h3>
-            </Card>
-          ))}
-        </div>
-      </TabsContent>
-    </Tabs>
-  );
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {userBadges.map((badge) => (
+          <div key={badge.id} className="space-y-2">
+            <BadgeCard badge={badge} />
+            <Progress
+              value={(badge.progress.completed_steps.length / badge.steps.length) * 100}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }

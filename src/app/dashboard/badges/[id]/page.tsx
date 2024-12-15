@@ -1,9 +1,9 @@
-import BadgeDetailsView from '@/components/dashboard/badges/badge-details-view';
+import { BadgeDetailsView } from '@/components/dashboard/badges/badge-details-view'
 
 export default function BadgeDetailsPage({
   params
 }: {
   params: { id: string }
 }) {
-  return <BadgeDetailsView id={params.id} />;
+  return <BadgeDetailsView badgeId={params.id} />;
 }

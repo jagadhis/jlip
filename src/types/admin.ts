@@ -29,7 +29,7 @@ export interface Badge {
   requirements: {
     prerequisites?: string[];
     conditions?: string[];
-  };
+  } | null;
   steps: {
     order: number;
     title: string;
@@ -63,4 +63,17 @@ export type Category = {
   description?: string;
   order_index?: number;
   created_at?: string;
+}
+
+
+export interface UserProgress {
+  id: string;
+  user_id: string;
+  badge_id: string;
+  course_id: string;
+  status: 'not_started' | 'in_progress' | 'completed';
+  current_step: number;
+  completed_steps: number[];
+  started_at: string;
+  completed_at?: string;
 }
