@@ -15,7 +15,7 @@ export function useAdmin() {
         return
       }
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('profiles')
         .select('is_admin')
         .eq('id', user.id)

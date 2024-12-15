@@ -4,7 +4,7 @@ import { Badge } from '@/types/admin'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge as UIBadge } from '@/components/ui/badge'
 import { Award } from 'lucide-react'
-import { difficultyColors } from '@/lib/color'
+import { getDifficultyColor } from '@/lib/color'
 
 interface BadgeCardProps {
   badge: Badge
@@ -12,7 +12,6 @@ interface BadgeCardProps {
 }
 
 export function BadgeCard({ badge, onClick }: BadgeCardProps) {
-  const difficultyColor = difficultyColors[badge.difficulty as keyof typeof difficultyColors]
   return (
     <Card
       className="cursor-pointer hover:shadow-md transition-shadow"
@@ -34,7 +33,7 @@ export function BadgeCard({ badge, onClick }: BadgeCardProps) {
               <Award className="h-3 w-3" />
               {badge.points} points
             </UIBadge>
-            <UIBadge className={difficultyColor.full}>
+            <UIBadge className={getDifficultyColor(badge.difficulty)}>
               Level {badge.difficulty}
             </UIBadge>
           </div>

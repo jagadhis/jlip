@@ -24,4 +24,10 @@ export const difficultyColors = {
     text: 'text-red-800',
     full: 'bg-red-100 text-red-800'
   }
-} as const
+} as const;
+
+export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
+
+export function getDifficultyColor(level: number) {
+  return difficultyColors[level as DifficultyLevel].full;
+}
